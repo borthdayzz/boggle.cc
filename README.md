@@ -3,6 +3,6 @@
 Official boggle.cc script hub!
 
 ```lua
-local boggle = "https://boggle.stole-your.creditcard/p/raw/s17keh366s"
+local boggle = "https://raw.githubusercontent.com/borthdayzz/boggle.cc/refs/heads/main/main.lua"
 loadstring(game:HttpGet(boggle))()
 ```
