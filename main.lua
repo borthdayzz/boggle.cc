@@ -1,3 +1,5 @@
+loadstring(game:HttpGet(('https://raw.githubusercontent.com/borthdayzz/boggle.cc/refs/heads/main/notification.lua'),true))()
+
 local function identifyExecutor()
     if identifyexecutor then
         return identifyexecutor()
@@ -7,7 +9,11 @@ local function identifyExecutor()
 end
 -- nigga exploits
     if identifyExecutor() == "Xeno" then
-        game:GetService("Players").LocalPlayer:Kick("Xeno will not work, fake ass unc why tf would you install this shit")
+        game:GetService("StarterGui"):SetCore("SendNotification",{
+            Title = "Xeno",
+            Text = "Xeno has limited functions and ha",
+            Icon = "rbxassetid://1234567890"
+        })
     else
     if identifyExecutor() == "FluxTeam" then
         game:GetService("Players").LocalPlayer:Kick("FluxTeam will not work, fake ass unc why tf would you install this shit")
