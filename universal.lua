@@ -5,7 +5,7 @@ local function identifyExecutor()
 end
 
 -- main
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/borthdayzz/boggle.cc/refs/heads/main/mobilesupport.lua"))()
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/borthdayzz/boggle.cc/refs/heads/main/other/mobilesupport.lua"))()
 
     local Window = Library.CreateLib("Universal - boggle.cc", "DarkTheme")
     local Main = Window:NewTab("Main")
@@ -19,10 +19,7 @@ local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/borth
     MainSection:NewButton("Identify Executor", "", function()
         local executor = identifyExecutor()
         print("Current Executor:", executor)
-    if executor ~= "Unknown" then
-        print("Current Executor:", executor)
-    end
-end)
+    end)
     MainSection:NewButton("Load Utility", "yea", function()
         loadstring(game:HttpGet(('https://boggle.stole-your.creditcard/p/raw/vtcqlhoaoe'),true))()
     end)
