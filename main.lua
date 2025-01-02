@@ -32,6 +32,9 @@ end
     -- Swat Simulator
     elseif game.PlaceId == 2906554815 then
         loadstring(game:HttpGet(('https://raw.githubusercontent.com/borthdayzz/boggle.cc/refs/heads/main/scripts/swat%20simulator.lua'),true))()
+    -- Red Light Green Light
+    elseif game.PlaceId == 7540891731 then
+        loadstring(game:HttpGet(('https://raw.githubusercontent.com/borthdayzz/boggle.cc/refs/heads/main/scripts/squidgame.lua'),true))()
     -- Universal
     else
         loadstring(game:HttpGet(('https://raw.githubusercontent.com/borthdayzz/boggle.cc/refs/heads/main/universal.lua'),true))()
