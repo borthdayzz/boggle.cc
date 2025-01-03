@@ -75,8 +75,23 @@ end
                                         Callback = function() end
                                     }
                                 }
-                            })    
-                    else
+                            })
+                        else
+                            if identifyExecutor() == "Luna" then
+                                CreateNotification({
+                                    Title = 'Luna',
+                                    Content = 'Luna has limited functions and fake unc, expect some bugs.',
+                                    Length = 5,
+                                    Buttons = {
+                                        [1] = {
+                                            Title = 'Dismiss',
+                                            ClosesUI = true,
+                                            Callback = function() end
+                                        }
+                                    }
+                                })    
+                        else
+                    end
                 end
             end
         end

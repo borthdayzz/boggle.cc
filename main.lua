@@ -20,6 +20,12 @@ loadstring(game:HttpGet(('https://raw.githubusercontent.com/borthdayzz/boggle.cc
     -- Red Light Green Light
     elseif game.PlaceId == 7540891731 then
         loadstring(game:HttpGet(('https://raw.githubusercontent.com/borthdayzz/boggle.cc/refs/heads/main/scripts/squidgame.lua'),true))()
+    -- Money Grab Simulator
+    elseif game.PlaceId == 14157644155 then
+        loadstring(game:HttpGet(('https://raw.githubusercontent.com/borthdayzz/boggle.cc/refs/heads/main/scripts/moneygrab.lua'),true))()
+    -- Boys ONLY NO GIRLS ALLOWED
+    elseif game.PlaceId == 10482667287 then
+        loadstring(game:HttpGet(('https://raw.githubusercontent.com/borthdayzz/boggle.cc/refs/heads/main/scripts/boysonly.lua'),true))()
     -- Universal
     else
         loadstring(game:HttpGet(('https://raw.githubusercontent.com/borthdayzz/boggle.cc/refs/heads/main/universal.lua'),true))()
