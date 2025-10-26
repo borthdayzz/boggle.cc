@@ -26,6 +26,9 @@ loadstring(game:HttpGet(('https://raw.githubusercontent.com/borthdayzz/boggle.cc
     -- Boys ONLY NO GIRLS ALLOWED
     elseif game.PlaceId == 10482667287 then
         loadstring(game:HttpGet(('https://raw.githubusercontent.com/borthdayzz/boggle.cc/refs/heads/main/scripts/boysonly.lua'),true))()
+    -- Prison Life
+    elseif game.PlaceId == 155615604 then
+        loadstring(game:HttpGet(('https://raw.githubusercontent.com/borthdayzz/boggle.cc/refs/heads/main/scripts/prisonlife.lua'),true))()
     -- Universal
     else
         loadstring(game:HttpGet(('https://raw.githubusercontent.com/borthdayzz/boggle.cc/refs/heads/main/universal.lua'),true))()
