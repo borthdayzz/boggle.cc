@@ -86,6 +86,12 @@ hitboxSection:NewButton("Loop Kill All", "Loop kill all players", function()
         end
     end)()
 end)
+
+hitboxSection:NewButton("Inf Ammo", "self explanatory", function()
+g = hookfunction(wait, function(seconds)
+return g(0)
+end)
+end)
 hitboxSection:NewLabel("Made by: The boggle.cc Team")
 
 local PlayerTab = Window:NewTab("Player")
