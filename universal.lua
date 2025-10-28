@@ -21,7 +21,7 @@ local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/borth
         print("Current Executor:", executor)
     end)
     MainSection:NewButton("Load Utility", "yea", function()
-        loadstring(game:HttpGet(('https://boggle.stole-your.creditcard/p/raw/vtcqlhoaoe'),true))()
+        loadstring(game:HttpGet(('https://raw.githubusercontent.com/borthdayzz/boggle.cc/refs/heads/main/scripts/utility.lua'),true))()
     end)
 
     -- scripts
