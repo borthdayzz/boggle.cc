@@ -25,6 +25,44 @@ MainSection:NewButton("Instant Proximity Prompt", "", function()
     game:GetService("ProximityPromptService").PromptButtonHoldBegan:Connect(function(prompt) prompt.HoldDuration = 0 end)
 end)
 
+-- Auto Tab
+local Auto = Window:NewTab("Auto")
+local AutoSection = Auto:NewSection("Made by the boggle.cc Team")
+
+
+local upgradeRunning = false
+
+AutoSection:NewToggle("Auto Upgrade", "Upgrade plots automatically", function(state)
+    upgradeRunning = state
+
+    if state then
+        task.spawn(function()
+            while upgradeRunning do
+                for i = 1, 50 do
+                    game.ReplicatedStorage.Events.PlotHandler:FireServer("Upgrade", i)
+                end
+                task.wait(1)
+            end
+        end)
+    end
+end)
+
+local collectRunning = false
+
+AutoSection:NewToggle("Auto Collect", "Collect money from plots", function(state)
+    collectRunning = state
+
+    if state then
+        task.spawn(function()
+            while collectRunning do
+                for i = 1, 50 do
+                    game.ReplicatedStorage.Events.PlotHandler:FireServer("Collect", i)
+                end
+                task.wait(1)
+            end
+        end)
+    end
+end)
 
 -- Teleport Tab
 local Teleport = Window:NewTab("Teleport")
