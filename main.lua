@@ -1,4 +1,3 @@
-loadstring(game:HttpGet(('https://raw.githubusercontent.com/borthdayzz/boggle.cc/refs/heads/main/other/dogshit.lua'),true))()
    -- destruction sim
     if game.PlaceId == 2248408710 then
         loadstring(game:HttpGet(('https://raw.githubusercontent.com/borthdayzz/boggle.cc/refs/heads/main/scripts/destructionsim.lua'),true))()
@@ -29,6 +28,9 @@ loadstring(game:HttpGet(('https://raw.githubusercontent.com/borthdayzz/boggle.cc
     -- Prison Life
     elseif game.PlaceId == 155615604 then
         loadstring(game:HttpGet(('https://raw.githubusercontent.com/borthdayzz/boggle.cc/refs/heads/main/scripts/prisonlife.lua'),true))()
+    -- Pressure Wash for Brainrots
+    elseif game.PlaceId == 126349562582764 then
+        loadstring(game:HttpGet(('https://raw.githubusercontent.com/borthdayzz/boggle.cc/refs/heads/main/scripts/pressurewash.lua'),true))()
     -- Universal
     else
         loadstring(game:HttpGet(('https://raw.githubusercontent.com/borthdayzz/boggle.cc/refs/heads/main/universal.lua'),true))()
