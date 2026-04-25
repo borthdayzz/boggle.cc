@@ -19,7 +19,7 @@ local executors = {
 local executor = identifyExecutor()
 
 if executors[executor] then
-    print("Raknet supported detected", executor)
+    print("Raknet support detected:", executor)
     loadstring(game:HttpGet("https://raw.githubusercontent.com/borthdayzz/boggle.cc/refs/heads/main/scripts/desync.lua", true))()
 else
     warn("Unsupported or unknown executor:", executor)
