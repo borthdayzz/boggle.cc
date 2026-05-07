@@ -1,6 +1,18 @@
 if getgenv().PacketHookLoaded then return end
 getgenv().PacketHookLoaded = true
 
+local StarterGui = game:GetService("StarterGui")
+task.spawn(function()
+    task.wait(0.5)
+    pcall(function()
+        StarterGui:SetCore("SendNotification", {
+            Title = "Desync",
+            Text = "Due to a new Roblox update removing the 0x1B packet, desync is patched.",
+            Duration = 8,
+        })
+    end)
+end)
+
 local UIS = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
