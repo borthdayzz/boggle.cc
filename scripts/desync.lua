@@ -1,5 +1,8 @@
+getgenv().PacketHookLoaded = nil
 if getgenv().PacketHookLoaded then return end
 getgenv().PacketHookLoaded = true
+
+local ok, err = pcall(function()
 
 local UIS = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
@@ -36,6 +39,10 @@ local R6 = {
     { "Left Leg",  Vector3.new(1, 2, 1),   CFrame.new(-0.5,-2, 0) },
     { "Right Leg", Vector3.new(1, 2, 1),   CFrame.new( 0.5,-2, 0) },
 }
+
+-- Clean up any previous ghost folder
+local existingGhost = workspace:FindFirstChild("_PHGhost")
+if existingGhost then existingGhost:Destroy() end
 
 local ghostFolder = Instance.new("Folder", workspace)
 ghostFolder.Name = "_PHGhost"
@@ -99,16 +106,16 @@ clientBillLbl.TextSize = 11
 Instance.new("UICorner", clientBillLbl).CornerRadius = UDim.new(0, 4)
 
 local function clearClientBoxes()
-    for _, b in ipairs(clientBoxes) do b:Destroy() end
+    for _, b in ipairs(clientBoxes) do
+        if b and b.Parent then b:Destroy() end
+    end
     clientBoxes = {}
 end
 
 local function attachClientESP(char)
     clearClientBoxes()
-    local head = char:FindFirstChild("Head")
-    if head then clientBill.Adornee = head end
     for _, partName in ipairs({"Head","Torso","Left Arm","Right Arm","Left Leg","Right Leg"}) do
-        local part = char:FindFirstChild(partName)
+        local part = char:WaitForChild(partName, 5)
         if part then
             local cb = Instance.new("SelectionBox", workspace)
             cb.Color3 = C.blue
@@ -120,20 +127,23 @@ local function attachClientESP(char)
             table.insert(clientBoxes, cb)
         end
     end
+    local head = char:FindFirstChild("Head")
+    if head then clientBill.Adornee = head end
 end
 
 local function setESPVisible(v)
-    for _, sb in ipairs(serverBoxes) do sb.Visible = v end
-    for _, cb in ipairs(clientBoxes) do cb.Visible = v end
+    for _, sb in ipairs(serverBoxes) do if sb and sb.Parent then sb.Visible = v end end
+    for _, cb in ipairs(clientBoxes) do if cb and cb.Parent then cb.Visible = v end end
     serverBill.Enabled = v
     clientBill.Enabled = v
 end
 
 lp.CharacterAdded:Connect(function(char)
-    task.wait(0.5)
     attachClientESP(char)
 end)
-if lp.Character then attachClientESP(lp.Character) end
+if lp.Character then
+    attachClientESP(lp.Character)
+end
 
 local frozenCFrame = nil
 
@@ -148,9 +158,21 @@ local function snapshotServerPos()
     end
 end
 
-local sg = Instance.new("ScreenGui", game:GetService("CoreGui"))
+local guiParent
+if gethui then
+    guiParent = gethui()
+else
+    guiParent = game:GetService("CoreGui")
+end
+
+local existingSg = guiParent:FindFirstChild("DesyncUI")
+if existingSg then existingSg:Destroy() end
+
+local sg = Instance.new("ScreenGui")
+sg.Name = "DesyncUI"
 sg.ResetOnSpawn = false
 sg.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+sg.Parent = guiParent
 
 local main = Instance.new("Frame", sg)
 main.Size = UDim2.new(0, 230, 0, 130)
@@ -443,10 +465,18 @@ end
 
 local enabled = false
 
+local function syncCharPanelPos()
+    charPanel.Position = UDim2.new(
+        main.Position.X.Scale,
+        main.Position.X.Offset - 15,
+        main.Position.Y.Scale,
+        main.Position.Y.Offset + 140
+    )
+end
+
 local function updateUI()
     if enabled then
         snapshotServerPos()
-
         TweenService:Create(main, ti, {BackgroundColor3 = Color3.fromRGB(11,18,15)}):Play()
         TweenService:Create(mainStroke, ti, {Color = C.greenDim}):Play()
         TweenService:Create(header, ti, {BackgroundColor3 = Color3.fromRGB(11,18,15)}):Play()
@@ -466,10 +496,10 @@ local function updateUI()
         pillText.Text = "Active"
         btnLabel.Text = "Disable desync"
         charPanel.Visible = true
+        syncCharPanelPos()
         setESPVisible(true)
     else
         frozenCFrame = nil
-
         TweenService:Create(main, ti, {BackgroundColor3 = C.bg}):Play()
         TweenService:Create(mainStroke, ti, {Color = C.border}):Play()
         TweenService:Create(header, ti, {BackgroundColor3 = C.bg}):Play()
@@ -514,19 +544,31 @@ UIS.InputBegan:Connect(function(input, gp)
 end)
 
 local dragging, dragStart, startPos = false, nil, nil
+
 header.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true; dragStart = input.Position; startPos = main.Position
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then dragging = false end
-        end)
+        dragging = true
+        dragStart = input.Position
+        startPos = main.Position
     end
 end)
-header.InputChanged:Connect(function(input)
+
+UIS.InputChanged:Connect(function(input)
     if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
         local delta = input.Position - dragStart
-        main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-        charPanel.Position = UDim2.new(main.Position.X.Scale, main.Position.X.Offset - 15, main.Position.Y.Scale, main.Position.Y.Offset + 140)
+        main.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
+        syncCharPanelPos()
+    end
+end)
+
+UIS.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
     end
 end)
 
@@ -535,15 +577,45 @@ RunService.Heartbeat:Connect(function()
     if charPanel.Visible then updateCharPanel() end
 end)
 
--- ─── HOOK ───
-raknet.add_send_hook(function(packet)
-    if not enabled then return end
-    if packet.PacketId ~= 0x1B then return end
-    local data = packet.AsBuffer
-    if data then
-        buffer.writeu32(data, 1, 0xFFFFFFFF)
-        packet:SetData(data)
+-- ─── RAKNET DESYNC ───
+if raknet and raknet.add_send_hook then
+    raknet.add_send_hook(function(packet)
+        if not enabled then return end
+        if packet.PacketId ~= 0x1B then return end
+        local data = packet.AsBuffer
+        if data then
+            local ok2, err2 = pcall(function()
+                buffer.writeu32(data, 1, 0xFFFFFFFF)
+                packet:SetData(data)
+            end)
+            if not ok2 then
+                warn("[Desync] Hook error: " .. tostring(err2))
+            end
+        end
+    end)
+end
+
+local function randomString(len)
+    local chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    local result = {}
+    for i = 1, len do
+        local idx = math.random(1, #chars)
+        result[i] = chars:sub(idx, idx)
+    end
+    return table.concat(result)
+end
+
+task.spawn(function()
+    while sg and sg.Parent do
+        sg.Name = randomString(12)
+        task.wait(3)
     end
 end)
 
 updateUI()
+
+end)
+
+if not ok then
+    warn("[Desync] Script error: " .. tostring(err))
+end
