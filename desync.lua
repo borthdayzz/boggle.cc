@@ -13,7 +13,8 @@ local executors = {
     ["Seliware"] = true,
     ["Synapse Z"] = true,
     ["MacSploit"] = true,
-    ["Delta"] = true
+    ["Delta"] = true,
+    ["YuBX"] = true
 }
 
 local executor = identifyExecutor()
