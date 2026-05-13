@@ -11,6 +11,10 @@ local RunService = game:GetService("RunService")
 local lp = Players.LocalPlayer
 local ti = TweenInfo.new(0.18, Enum.EasingStyle.Quad)
 
+local function tween(obj, props)
+    tween(main, {BackgroundColor3 = C.bg})
+end
+
 local C = {
     bg       = Color3.fromRGB(15, 15, 23),
     panel    = Color3.fromRGB(26, 26, 44),
@@ -109,26 +113,45 @@ local function clearClientBoxes()
     for _, b in ipairs(clientBoxes) do
         if b and b.Parent then b:Destroy() end
     end
-    clientBoxes = {}
+    table.clear(clientBoxes)
 end
 
 local function attachClientESP(char)
     clearClientBoxes()
-    for _, partName in ipairs({"Head","Torso","Left Arm","Right Arm","Left Leg","Right Leg"}) do
-        local part = char:WaitForChild(partName, 5)
+
+    local isR15 = char:FindFirstChild("UpperTorso") ~= nil
+
+    local parts = isR15 and {
+        "Head",
+        "UpperTorso", "LowerTorso",
+        "LeftUpperArm", "LeftLowerArm", "LeftHand",
+        "RightUpperArm", "RightLowerArm", "RightHand",
+        "LeftUpperLeg", "LeftLowerLeg", "LeftFoot",
+        "RightUpperLeg", "RightLowerLeg", "RightFoot"
+    } or {
+        "Head","Torso","Left Arm","Right Arm","Left Leg","Right Leg"
+    }
+
+    for _, partName in ipairs(parts) do
+        local part = char:FindFirstChild(partName)
         if part then
-            local cb = Instance.new("SelectionBox", workspace)
+            local cb = Instance.new("SelectionBox")
             cb.Color3 = C.blue
             cb.LineThickness = 0.04
             cb.SurfaceTransparency = 0.85
             cb.SurfaceColor3 = C.blue
             cb.Adornee = part
             cb.Visible = false
+            cb.Parent = workspace
+
             table.insert(clientBoxes, cb)
         end
     end
+
     local head = char:FindFirstChild("Head")
-    if head then clientBill.Adornee = head end
+    if head then
+        clientBill.Adornee = head
+    end
 end
 
 local function setESPVisible(v)
@@ -150,6 +173,7 @@ local frozenCFrame = nil
 local function snapshotServerPos()
     local char = lp.Character
     if not char then return end
+
     local hrp = char:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
     frozenCFrame = hrp.CFrame
@@ -572,9 +596,17 @@ UIS.InputEnded:Connect(function(input)
     end
 end)
 
-RunService.Heartbeat:Connect(function()
+local acc = 0
+RunService.Heartbeat:Connect(function(dt)
     if not enabled then return end
-    if charPanel.Visible then updateCharPanel() end
+    
+    acc += dt
+    if acc < 0.1 then return end
+    acc = 0
+
+    if charPanel.Visible then
+        updateCharPanel()
+    end
 end)
 
 -- ─── RAKNET DESYNC ───
@@ -584,10 +616,8 @@ if raknet and raknet.add_send_hook then
         if packet.PacketId ~= 0x1B then return end
         local data = packet.AsBuffer
         if data then
-            local ok2, err2 = pcall(function()
-                buffer.writeu32(data, 1, 0xFFFFFFFF)
-                packet:SetData(data)
-            end)
+            buffer.writeu32(data, 1, 0xFFFFFFFF)
+            packet:SetData(data)
             if not ok2 then
                 warn("[Desync] Hook error: " .. tostring(err2))
             end
@@ -608,7 +638,7 @@ end
 task.spawn(function()
     while sg and sg.Parent do
         sg.Name = randomString(12)
-        task.wait(3)
+        task.wait(5)
     end
 end)
 
