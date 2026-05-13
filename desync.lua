@@ -1,27 +1,19 @@
-local function identifyExecutor()
-    if identifyexecutor then
-        return identifyexecutor()
-    else
-        return "Unknown"
-    end
+local function hasRaknet()
+    return (typeof(raknet) == "table")
+        and (typeof(raknet.add_send_hook) == "function")
+        and (typeof(raknet.add_receive_hook) == "function")
 end
 
-local executors = {
-    ["Volt"] = true,
-    ["Madium"] = true,
-    ["Potassium"] = true,
-    ["Seliware"] = true,
-    ["Synapse Z"] = true,
-    ["MacSploit"] = true,
-    ["Delta"] = true,
-    ["YuBX"] = true
-}
+if hasRaknet() then
+    print("Raknet support detected")
+    
+    local success, err = pcall(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/borthdayzz/boggle.cc/refs/heads/main/scripts/desync.lua", true))()
+    end)
 
-local executor = identifyExecutor()
-
-if executors[executor] then
-    print("Raknet support detected:", executor)
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/borthdayzz/boggle.cc/refs/heads/main/scripts/desync.lua", true))()
+    if not success then
+        warn("Failed to load desync script:", err)
+    end
 else
-    warn("Unsupported or unknown executor:", executor)
+    warn("Raknet not supported on this executor")
 end

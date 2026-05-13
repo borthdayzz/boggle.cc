@@ -12,7 +12,7 @@ local lp = Players.LocalPlayer
 local ti = TweenInfo.new(0.18, Enum.EasingStyle.Quad)
 
 local function tween(obj, props)
-    tween(main, {BackgroundColor3 = C.bg})
+    TweenService:Create(obj, ti, props):Play()
 end
 
 local C = {
@@ -610,20 +610,22 @@ RunService.Heartbeat:Connect(function(dt)
 end)
 
 -- ─── RAKNET DESYNC ───
-if raknet and raknet.add_send_hook then
-    raknet.add_send_hook(function(packet)
+raknet.add_send_hook(function(packet)
+    local ok2, err2 = pcall(function()
         if not enabled then return end
         if packet.PacketId ~= 0x1B then return end
+
         local data = packet.AsBuffer
         if data then
             buffer.writeu32(data, 1, 0xFFFFFFFF)
             packet:SetData(data)
-            if not ok2 then
-                warn("[Desync] Hook error: " .. tostring(err2))
-            end
         end
     end)
-end
+
+    if not ok2 then
+        warn("[Desync] Hook error: " .. tostring(err2))
+    end
+end)
 
 local function randomString(len)
     local chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
