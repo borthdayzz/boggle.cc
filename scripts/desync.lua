@@ -610,22 +610,28 @@ RunService.Heartbeat:Connect(function(dt)
 end)
 
 -- ─── RAKNET DESYNC ───
-raknet.add_send_hook(function(packet)
-    local ok2, err2 = pcall(function()
-        if not enabled then return end
-        if packet.PacketId ~= 0x1B then return end
+if raknet and type(raknet.add_send_hook) == "function" then
+    raknet.add_send_hook(function(packet)
+        local ok2, err2 = pcall(function()
+            if not enabled then return end
+            if packet.PacketId ~= 0x1B then return end
 
-        local data = packet.AsBuffer
-        if data then
-            buffer.writeu32(data, 1, 0xFFFFFFFF)
-            packet:SetData(data)
+            local data = packet.AsBuffer
+            if not data then return end
+
+            if buffer and type(buffer.writeu32) == "function" then
+                buffer.writeu32(data, 1, 0xFFFFFFFF)
+                packet:SetData(data)
+            else
+                warn("[Desync] buffer.writeu32 missing or invalid")
+            end
+        end)
+
+        if not ok2 then
+            warn("[Desync] Hook error:", err2)
         end
     end)
-
-    if not ok2 then
-        warn("[Desync] Hook error: " .. tostring(err2))
-    end
-end)
+end
 
 local function randomString(len)
     local chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
