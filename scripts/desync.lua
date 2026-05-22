@@ -554,16 +554,19 @@ toggleBtn.MouseLeave:Connect(function()
     if not enabled then TweenService:Create(toggleBtn, ti, {BackgroundColor3 = C.offBtn}):Play() end
 end)
 
-toggleBtn.MouseButton1Click:Connect(function()
+local function toggleDesync()
     enabled = not enabled
     updateUI()
+end
+
+toggleBtn.MouseButton1Click:Connect(function()
+    toggleDesync()
 end)
 
 UIS.InputBegan:Connect(function(input, gp)
     if gp then return end
     if input.KeyCode == Enum.KeyCode.K then
-        enabled = not enabled
-        updateUI()
+        toggleDesync()
     end
 end)
 
@@ -610,10 +613,12 @@ RunService.Heartbeat:Connect(function(dt)
 end)
 
 -- ─── RAKNET DESYNC ───
+local desyncHookFunc = nil
+local desyncHookAdded = false
+
 if raknet and type(raknet.add_send_hook) == "function" then
-    raknet.add_send_hook(function(packet)
+    desyncHookFunc = function(packet)
         local ok2, err2 = pcall(function()
-            if not enabled then return end
             if packet.PacketId ~= 0x1B then return end
 
             local data = packet.AsBuffer
@@ -630,7 +635,24 @@ if raknet and type(raknet.add_send_hook) == "function" then
         if not ok2 then
             warn("[Desync] Hook error:", err2)
         end
-    end)
+    end
+    
+    local originalToggle = toggleDesync
+    toggleDesync = function()
+        originalToggle()
+        
+        if enabled and not desyncHookAdded then
+            raknet.add_send_hook(desyncHookFunc)
+            desyncHookAdded = true
+            print("[Desync] Hook added")
+        elseif not enabled and desyncHookAdded then
+            if raknet.remove_send_hook then
+                raknet.remove_send_hook(desyncHookFunc)
+                desyncHookAdded = false
+                print("[Desync] Hook removed")
+            end
+        end
+    end
 end
 
 local function randomString(len)
