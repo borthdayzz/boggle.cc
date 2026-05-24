@@ -154,11 +154,24 @@ local function attachClientESP(char)
     end
 end
 
-local function setESPVisible(v)
-    for _, sb in ipairs(serverBoxes) do if sb and sb.Parent then sb.Visible = v end end
+local clientESPEnabled = false
+local serverESPEnabled = false
+
+local function setClientESPVisible(v)
+    clientESPEnabled = v
     for _, cb in ipairs(clientBoxes) do if cb and cb.Parent then cb.Visible = v end end
-    serverBill.Enabled = v
     clientBill.Enabled = v
+end
+
+local function setServerESPVisible(v)
+    serverESPEnabled = v
+    for _, sb in ipairs(serverBoxes) do if sb and sb.Parent then sb.Visible = v end end
+    serverBill.Enabled = v
+end
+
+local function setESPVisible(v)
+    setClientESPVisible(v)
+    setServerESPVisible(v)
 end
 
 lp.CharacterAdded:Connect(function(char)
@@ -199,7 +212,7 @@ sg.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 sg.Parent = guiParent
 
 local main = Instance.new("Frame", sg)
-main.Size = UDim2.new(0, 230, 0, 130)
+main.Size = UDim2.new(0, 230, 0, 180)
 main.Position = UDim2.new(0.5, -115, 0.5, -65)
 main.BackgroundColor3 = C.bg
 main.BorderSizePixel = 0
@@ -263,7 +276,7 @@ hdivider.BackgroundColor3 = C.border
 hdivider.BorderSizePixel = 0
 
 local body = Instance.new("Frame", main)
-body.Size = UDim2.new(1, -24, 0, 80)
+body.Size = UDim2.new(1, -24, 0, 130)
 body.Position = UDim2.new(0, 12, 0, 44)
 body.BackgroundTransparency = 1
 
@@ -343,9 +356,43 @@ fdivider.Position = UDim2.new(0, 0, 0, 62)
 fdivider.BackgroundColor3 = C.border
 fdivider.BorderSizePixel = 0
 
-local pktLabel = Instance.new("TextLabel", body)
+local function makeESPToggleButton(parent, yPos, espType, color)
+    local btnFrame = Instance.new("TextButton", parent)
+    btnFrame.Size = UDim2.new(0.5, -4, 0, 24)
+    btnFrame.Position = UDim2.new(espType == "client" and 0 or 0.5, espType == "client" and 0 or 4, 0, yPos)
+    btnFrame.BackgroundColor3 = C.offBtn
+    btnFrame.BorderSizePixel = 0
+    btnFrame.Text = ""
+    btnFrame.AutoButtonColor = false
+    Instance.new("UICorner", btnFrame).CornerRadius = UDim.new(0, 6)
+    local btnStroke = Instance.new("UIStroke", btnFrame)
+    btnStroke.Color = C.offBtnBd
+    btnStroke.Thickness = 1
+
+    local btnLabel = Instance.new("TextLabel", btnFrame)
+    btnLabel.Size = UDim2.new(1, -12, 1, 0)
+    btnLabel.Position = UDim2.new(0, 6, 0, 0)
+    btnLabel.BackgroundTransparency = 1
+    btnLabel.Text = (espType == "client" and "Client ESP" or "Server ESP")
+    btnLabel.TextColor3 = C.dimText
+    btnLabel.Font = Enum.Font.GothamBold
+    btnLabel.TextSize = 10
+    btnLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+    local statusDot = Instance.new("Frame", btnFrame)
+    statusDot.Size = UDim2.new(0, 6, 0, 6)
+    statusDot.Position = UDim2.new(1, -10, 0.5, -3)
+    statusDot.BackgroundColor3 = C.dimText
+    statusDot.BorderSizePixel = 0
+    Instance.new("UICorner", statusDot).CornerRadius = UDim.new(1, 0)
+
+    return btnFrame, btnLabel, statusDot, btnStroke
+end
+
+local clientESPBtn, clientESPLbl, clientESPDot, clientESPStroke = makeESPToggleButton(body, 68, "client", C.blue)
+local serverESPBtn, serverESPLbl, serverESPDot, serverESPStroke = makeESPToggleButton(body, 68, "server", C.orange)
 pktLabel.Size = UDim2.new(0.5, 0, 0, 14)
-pktLabel.Position = UDim2.new(0, 0, 0, 67)
+pktLabel.Position = UDim2.new(0, 0, 0, 100)
 pktLabel.BackgroundTransparency = 1
 pktLabel.Text = "Target packet"
 pktLabel.TextColor3 = Color3.fromRGB(58, 58, 80)
@@ -355,7 +402,7 @@ pktLabel.TextXAlignment = Enum.TextXAlignment.Left
 
 local pktVal = Instance.new("TextLabel", body)
 pktVal.Size = UDim2.new(0.5, 0, 0, 14)
-pktVal.Position = UDim2.new(0.5, 0, 0, 67)
+pktVal.Position = UDim2.new(0.5, 0, 0, 100)
 pktVal.BackgroundTransparency = 1
 pktVal.Text = "0x1B"
 pktVal.TextColor3 = Color3.fromRGB(68, 68, 106)
@@ -543,7 +590,11 @@ local function updateUI()
         pillText.Text = "Inactive"
         btnLabel.Text = "Enable desync"
         charPanel.Visible = false
+        clientESPEnabled = false
+        serverESPEnabled = false
         setESPVisible(false)
+        updateESPButtonUI(clientESPBtn, clientESPLbl, clientESPDot, clientESPStroke, false, C.blue)
+        updateESPButtonUI(serverESPBtn, serverESPLbl, serverESPDot, serverESPStroke, false, C.orange)
     end
 end
 
@@ -552,6 +603,44 @@ toggleBtn.MouseEnter:Connect(function()
 end)
 toggleBtn.MouseLeave:Connect(function()
     if not enabled then TweenService:Create(toggleBtn, ti, {BackgroundColor3 = C.offBtn}):Play() end
+end)
+
+local function updateESPButtonUI(btn, lbl, dot, stroke, isEnabled, color)
+    if isEnabled then
+        TweenService:Create(btn, ti, {BackgroundColor3 = color == C.blue and C.blueBg or C.orangeBg}):Play()
+        TweenService:Create(stroke, ti, {Color = color == C.blue and C.blueDim or C.orangeDim}):Play()
+        TweenService:Create(dot, ti, {BackgroundColor3 = color}):Play()
+        TweenService:Create(lbl, ti, {TextColor3 = color}):Play()
+    else
+        TweenService:Create(btn, ti, {BackgroundColor3 = C.offBtn}):Play()
+        TweenService:Create(stroke, ti, {Color = C.offBtnBd}):Play()
+        TweenService:Create(dot, ti, {BackgroundColor3 = C.dimText}):Play()
+        TweenService:Create(lbl, ti, {TextColor3 = C.dimText}):Play()
+    end
+end
+
+clientESPBtn.MouseEnter:Connect(function()
+    if not clientESPEnabled then TweenService:Create(clientESPBtn, ti, {BackgroundColor3 = Color3.fromRGB(32,32,52)}):Play() end
+end)
+clientESPBtn.MouseLeave:Connect(function()
+    if not clientESPEnabled then TweenService:Create(clientESPBtn, ti, {BackgroundColor3 = C.offBtn}):Play() end
+end)
+clientESPBtn.MouseButton1Click:Connect(function()
+    clientESPEnabled = not clientESPEnabled
+    setClientESPVisible(clientESPEnabled)
+    updateESPButtonUI(clientESPBtn, clientESPLbl, clientESPDot, clientESPStroke, clientESPEnabled, C.blue)
+end)
+
+serverESPBtn.MouseEnter:Connect(function()
+    if not serverESPEnabled then TweenService:Create(serverESPBtn, ti, {BackgroundColor3 = Color3.fromRGB(32,32,52)}):Play() end
+end)
+serverESPBtn.MouseLeave:Connect(function()
+    if not serverESPEnabled then TweenService:Create(serverESPBtn, ti, {BackgroundColor3 = C.offBtn}):Play() end
+end)
+serverESPBtn.MouseButton1Click:Connect(function()
+    serverESPEnabled = not serverESPEnabled
+    setServerESPVisible(serverESPEnabled)
+    updateESPButtonUI(serverESPBtn, serverESPLbl, serverESPDot, serverESPStroke, serverESPEnabled, C.orange)
 end)
 
 local function toggleDesync()
