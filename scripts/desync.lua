@@ -391,6 +391,8 @@ end
 
 local clientESPBtn, clientESPLbl, clientESPDot, clientESPStroke = makeESPToggleButton(body, 68, "client", C.blue)
 local serverESPBtn, serverESPLbl, serverESPDot, serverESPStroke = makeESPToggleButton(body, 68, "server", C.orange)
+
+local pktLabel = Instance.new("TextLabel", body)
 pktLabel.Size = UDim2.new(0.5, 0, 0, 14)
 pktLabel.Position = UDim2.new(0, 0, 0, 100)
 pktLabel.BackgroundTransparency = 1
@@ -545,6 +547,20 @@ local function syncCharPanelPos()
     )
 end
 
+local function updateESPButtonUI(btn, lbl, dot, stroke, isEnabled, color)
+    if isEnabled then
+        TweenService:Create(btn, ti, {BackgroundColor3 = color == C.blue and C.blueBg or C.orangeBg}):Play()
+        TweenService:Create(stroke, ti, {Color = color == C.blue and C.blueDim or C.orangeDim}):Play()
+        TweenService:Create(dot, ti, {BackgroundColor3 = color}):Play()
+        TweenService:Create(lbl, ti, {TextColor3 = color}):Play()
+    else
+        TweenService:Create(btn, ti, {BackgroundColor3 = C.offBtn}):Play()
+        TweenService:Create(stroke, ti, {Color = C.offBtnBd}):Play()
+        TweenService:Create(dot, ti, {BackgroundColor3 = C.dimText}):Play()
+        TweenService:Create(lbl, ti, {TextColor3 = C.dimText}):Play()
+    end
+end
+
 local function updateUI()
     if enabled then
         snapshotServerPos()
@@ -604,20 +620,6 @@ end)
 toggleBtn.MouseLeave:Connect(function()
     if not enabled then TweenService:Create(toggleBtn, ti, {BackgroundColor3 = C.offBtn}):Play() end
 end)
-
-local function updateESPButtonUI(btn, lbl, dot, stroke, isEnabled, color)
-    if isEnabled then
-        TweenService:Create(btn, ti, {BackgroundColor3 = color == C.blue and C.blueBg or C.orangeBg}):Play()
-        TweenService:Create(stroke, ti, {Color = color == C.blue and C.blueDim or C.orangeDim}):Play()
-        TweenService:Create(dot, ti, {BackgroundColor3 = color}):Play()
-        TweenService:Create(lbl, ti, {TextColor3 = color}):Play()
-    else
-        TweenService:Create(btn, ti, {BackgroundColor3 = C.offBtn}):Play()
-        TweenService:Create(stroke, ti, {Color = C.offBtnBd}):Play()
-        TweenService:Create(dot, ti, {BackgroundColor3 = C.dimText}):Play()
-        TweenService:Create(lbl, ti, {TextColor3 = C.dimText}):Play()
-    end
-end
 
 clientESPBtn.MouseEnter:Connect(function()
     if not clientESPEnabled then TweenService:Create(clientESPBtn, ti, {BackgroundColor3 = Color3.fromRGB(32,32,52)}):Play() end
