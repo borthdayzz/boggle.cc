@@ -69,7 +69,7 @@ return function(userConfig)
     local config = {
         title = "Unsupported executor",
         body = "This script uses functions that your executor doesn't support.",
-        site = "https://weao.xyz/",
+        site = "https://weao.gg/,
         note = "This script requires Raknet support to function properly.",
         primary = "View executors",
         secondary = "Dismiss",

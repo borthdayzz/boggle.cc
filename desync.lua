@@ -9,7 +9,7 @@ local function showWarning(body)
     warning({
         title = "Unsupported executor",
         body = body,
-        site = "https://weao.xyz/",
+        site = "https://weao.gg/",
         note = "This script requires Raknet support to function properly.",
         primary = "View executors",
         secondary = "Dismiss",
