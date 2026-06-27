@@ -31,6 +31,9 @@
     -- Pressure Wash for Brainrots
     elseif game.PlaceId == 126349562582764 then
         loadstring(game:HttpGet(('https://raw.githubusercontent.com/borthdayzz/boggle.cc/refs/heads/main/scripts/pressurewash.lua'),true))()
+    -- Counterblox
+    elseif game.PlaceId == 301549746 then
+        loadstring(game:HttpGet(('https://raw.githubusercontent.com/borthdayzz/boggle.cc/refs/heads/main/scripts/counterblox.lua'),true))()
     -- Universal
     else
         loadstring(game:HttpGet(('https://raw.githubusercontent.com/borthdayzz/boggle.cc/refs/heads/main/universal.lua'),true))()
